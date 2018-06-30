@@ -25,20 +25,38 @@ namespace OoTBitRaceRandomizer
         private byte[] TunicColor = new byte[3] { 0x1E, 0x69, 0x1B }; // RGB
         private byte[] OcarinaSound = new byte[1] { 1 }; // 1 - 7
 
-
         private void SetConstantValues()
         {
             if (baseAddress != 0 && processHandle != null)
             {
-                while (ConstantSetThreadEnabled)
+                while (ConstantSetThreadEnabled && IsOoTAlive())
                 {
                     WriteCode(OcarinaSound, 1, 0x10220C);
                     WriteCode(TunicColor, TunicColor.Length, 0x0F7AD8);
-                    Thread.Sleep(10);
+                    Thread.Sleep(1000);
                 }
+
+                Console.WriteLine("Constant Set Thread has ended!");
+                ConstantSetThreadEnabled = false;
             }
         }
 
+        private bool IsOoTAlive()
+        {
+            if (processHandle != null && baseAddress != 0)
+            {
+                int reference = 0;
+                int vBuffer = 0;
+                ReadWritingMemory.ReadProcessMemory1((int)processHandle, baseAddress + 0x10, ref vBuffer, 4, ref reference);
+                if (ReadWritingMemory.ConstVal1 == vBuffer)
+                {
+                    return true;
+                }
+            }
+
+            Console.WriteLine("OoT emulation has ended!");
+            return false;
+        }
 
         public Form1()
         {

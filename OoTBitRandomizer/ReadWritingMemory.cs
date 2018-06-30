@@ -7,6 +7,9 @@ namespace OoTBitRaceRandomizer
 {
     static class ReadWritingMemory
     {
+        public const int ConstVal1 = 0x354AFFFF;
+        public const int ConstVal2 = 0x3C01A460;
+
         [DllImport("kernel32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int OpenProcess(int dwDesiredAccess, int bInheritHandle, int dwProcessId);
 
@@ -14,7 +17,7 @@ namespace OoTBitRaceRandomizer
         private static extern int WriteProcessMemory1(int hProcess, int lpBaseAddress, ref int lpBuffer, int nSize, ref int lpNumberOfBytesWritten);
 
         [DllImport("kernel32", EntryPoint = "ReadProcessMemory", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int ReadProcessMemory1(int hProcess, int lpBaseAddress, ref int lpBuffer, int nSize, ref int lpNumberOfBytesRead);
+        public static extern int ReadProcessMemory1(int hProcess, int lpBaseAddress, ref int lpBuffer, int nSize, ref int lpNumberOfBytesRead);
 
         public static void WriteXBytes(string ProcessName, int Address, byte[] Values)
         {
@@ -72,11 +75,11 @@ namespace OoTBitRaceRandomizer
                 int reference = 0;
 
                 ReadProcessMemory1(hProcess, x, ref vBuffer, nsize, ref reference);
-                if (vBuffer == 0x354AFFFF) // this appears to be constant?
+                if (vBuffer == ConstVal1) // this appears to be constant?
                 {
                     reference = 0;
                     ReadProcessMemory1(hProcess, x + 4, ref vBuffer, nsize, ref reference);
-                    if (vBuffer == 0x3C01A460) // this may be constant too. they're definitely better than the ones at address 0x80000000
+                    if (vBuffer == ConstVal2) // this may be constant too. they're definitely better than the ones at address 0x80000000
                     {
                         int RAMAddress = x - 0x10;
                         Console.WriteLine("RAM Base Address: 0x" + RAMAddress.ToString("X8"));
